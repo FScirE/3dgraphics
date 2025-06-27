@@ -20,13 +20,21 @@ namespace _3dgraphics
             this.color = color;
         }
 
-        public void Draw(SpriteBatch sb)
+        public float GetZ()
         {
-            Vector3 diff = b - a;
+            return (a.Z + b.Z) / 2;
+        }
+
+        public void Draw(SpriteBatch sb, Viewport vp)
+        {
+            Vector2 a2D = Camera.Project(a, vp);
+            Vector2 b2D = Camera.Project(b, vp);
+
+            Vector2 diff = b2D - a2D;
             float length = (float)Math.Sqrt(diff.X * diff.X + diff.Y * diff.Y);
             float angle = (float)Math.Atan2(diff.Y, diff.X);
 
-            sb.Draw(Game1._blankTexture, new Rectangle((int)a.X, (int)a.Y, (int)length, 2), null, color, angle, Vector2.Zero, SpriteEffects.None, 0);
+            sb.Draw(Game1._blankTexture, new Rectangle((int)a2D.X, (int)a2D.Y, (int)length, 3), null, color, angle, Vector2.Zero, SpriteEffects.None, 0);
         }
     }
 }
