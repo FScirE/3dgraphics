@@ -78,8 +78,9 @@ namespace _3dgraphics
         {
             GraphicsDevice.Clear(Color.DarkSlateGray);
 
+            _spriteBatch.GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
             _spriteBatch.Begin();
-
+            
             box.Draw(_spriteBatch, _graphics.GraphicsDevice.Viewport);
 
             _spriteBatch.DrawString(_spriteFont, 

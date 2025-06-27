@@ -1,7 +1,3 @@
-.config
-
-*.mgcb
-
 bin
 obj
 Content/bin

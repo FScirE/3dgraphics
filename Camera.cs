@@ -19,10 +19,9 @@ namespace _3dgraphics
             world = Matrix.Identity;
         }
 
-        public static Vector2 Project(Vector3 vector, Viewport viewport)
+        public static Vector3 Project(Vector3 vector, Viewport viewport)
         {
-            Vector3 projected = viewport.Project(vector, projection, view, world);
-            return new Vector2(projected.X, projected.Y);
+            return viewport.Project(vector, projection, view, world);
         }
     }
 }
