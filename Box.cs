@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using static System.Windows.Forms.Design.AxImporter;
 
 namespace _3dgraphics
 {
@@ -72,10 +73,10 @@ namespace _3dgraphics
             corners[7] = Vector3.Transform(new Vector3(-1, 1, -1), transform);
 
             // FRONT
-            edges[0] = new Line(corners[0], corners[1], Color.CornflowerBlue);
-            edges[1] = new Line(corners[1], corners[2], Color.CornflowerBlue);
-            edges[2] = new Line(corners[2], corners[3], Color.CornflowerBlue);
-            edges[3] = new Line(corners[3], corners[0], Color.CornflowerBlue);
+            edges[0] = new Line(corners[0], corners[1], Color.MediumPurple);
+            edges[1] = new Line(corners[1], corners[2], Color.MediumPurple);
+            edges[2] = new Line(corners[2], corners[3], Color.MediumPurple);
+            edges[3] = new Line(corners[3], corners[0], Color.MediumPurple);
             // BACK
             edges[4] = new Line(corners[4], corners[5], Color.LightGreen);
             edges[5] = new Line(corners[5], corners[6], Color.LightGreen);
@@ -86,16 +87,6 @@ namespace _3dgraphics
             edges[9] = new Line(corners[1], corners[5], Color.Red);
             edges[10] = new Line(corners[2], corners[6], Color.Red);
             edges[11] = new Line(corners[3], corners[7], Color.Red);
-
-            // Sort edges for z-order
-            for (int i = 0; i < edges.Length; i++)
-            {
-                Line key = edges[i];
-                int j = i;
-                for (j = i; j > 0 && key.GetZ() > edges[j - 1].GetZ(); j--)
-                    edges[j] = edges[j - 1];
-                edges[j] = key;
-            }
         }
 
         public void Draw(SpriteBatch sb, Viewport vp)

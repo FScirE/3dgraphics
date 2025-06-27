@@ -11,6 +11,7 @@ namespace _3dgraphics
         private SpriteBatch _spriteBatch;
 
         public static Texture2D _blankTexture;
+        public static Texture2D _pixelTexture;
         public static SpriteFont _spriteFont;
 
         private Box box, defaultBox;
@@ -33,7 +34,7 @@ namespace _3dgraphics
             defaultBox = new Box(
                 new Vector3(0, 0, 0),
                 new Vector3(10, 10, 10),
-                new Vector3(0.48f, 0.24f, 1.6f)
+                new Vector3(0, 0, 0)
             );
             box = new Box(defaultBox);
 
@@ -45,6 +46,7 @@ namespace _3dgraphics
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _blankTexture = Content.Load<Texture2D>("blank");
+            _pixelTexture = Content.Load<Texture2D>("pixel");
             _spriteFont = Content.Load<SpriteFont>("font");
         }
 
@@ -78,8 +80,7 @@ namespace _3dgraphics
         {
             GraphicsDevice.Clear(Color.DarkSlateGray);
 
-            _spriteBatch.GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-            _spriteBatch.Begin();
+            _spriteBatch.Begin(SpriteSortMode.BackToFront);
             
             box.Draw(_spriteBatch, _graphics.GraphicsDevice.Viewport);
 

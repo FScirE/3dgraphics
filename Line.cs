@@ -36,7 +36,7 @@ namespace _3dgraphics
 
             float zOrder = (a2D.Z + b2D.Z) / 2;
 
-            sb.Draw(Game1._blankTexture, new Rectangle((int)a2D.X, (int)a2D.Y, (int)length, 3), null, color, angle, Vector2.Zero, SpriteEffects.None, zOrder);
+            sb.Draw(Game1._pixelTexture, new Vector2(a2D.X, a2D.Y), null, color, angle, new Vector2(0, 1), new Vector2(length, 2), SpriteEffects.None, zOrder);
         }
     }
 }
