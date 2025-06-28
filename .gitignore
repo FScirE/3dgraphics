@@ -3,7 +3,7 @@ obj
 Content/bin
 Content/obj
 .vs
-.csproj
-.manifest
+*.csproj
+*.manifest
 Content/Content.mgcb
 Icon.ico
