@@ -2,3 +2,8 @@ bin
 obj
 Content/bin
 Content/obj
+.vs
+.csproj
+.manifest
+Content/Content.mgcb
+Icon.ico
