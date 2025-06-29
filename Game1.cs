@@ -23,6 +23,20 @@ namespace _3dgraphics
             IsMouseVisible = true;
         }
 
+        private static string GetMatrixString(Matrix matrix)
+        {
+            string representation = "\n";
+            for (int i = 0; i < 16; i++)
+            {
+                representation += matrix[i].ToString();
+                if ((i + 1) % 4 == 0)
+                    representation += "\n";
+                else 
+                    representation += ", ";
+            }
+            return representation;
+        }
+
         protected override void Initialize()
         {
             _graphics.PreferredBackBufferWidth = 800;
@@ -34,7 +48,7 @@ namespace _3dgraphics
             defaultBox = new Box(
                 new Vector3(0, 0, 0),
                 new Vector3(10, 10, 10),
-                new Vector3(0, 0, 0)
+                Matrix.Identity
             );
             box = new Box(defaultBox);
 
@@ -61,17 +75,17 @@ namespace _3dgraphics
                 box = new Box(defaultBox);
 
             if (KeyMouseReader.keyState.IsKeyDown(Keys.D))
-                box.Update(Vector3.Zero, Vector3.Zero, new Vector3((float)Math.PI / 64, 0, 0));
+                box.RotateHorizontal((float)Math.PI / 64);
             if (KeyMouseReader.keyState.IsKeyDown(Keys.A))
-                box.Update(Vector3.Zero, Vector3.Zero, new Vector3(-(float)Math.PI / 64, 0, 0));
-            if (KeyMouseReader.keyState.IsKeyDown(Keys.E))
-                box.Update(Vector3.Zero, Vector3.Zero, new Vector3(0, (float)Math.PI / 64, 0));
-            if (KeyMouseReader.keyState.IsKeyDown(Keys.Q))
-                box.Update(Vector3.Zero, Vector3.Zero, new Vector3(0, -(float)Math.PI / 64, 0));
+                box.RotateHorizontal(-(float)Math.PI / 64);
             if (KeyMouseReader.keyState.IsKeyDown(Keys.W))
-                box.Update(Vector3.Zero, Vector3.Zero, new Vector3(0, 0, (float)Math.PI / 64));
+                box.RotateVertical((float)Math.PI / 64);
             if (KeyMouseReader.keyState.IsKeyDown(Keys.S))
-                box.Update(Vector3.Zero, Vector3.Zero, new Vector3(0, 0, -(float)Math.PI / 64));
+                box.RotateVertical(-(float)Math.PI / 64);
+            if (KeyMouseReader.keyState.IsKeyDown(Keys.Q))
+                box.RotatePlane((float)Math.PI / 64);
+            if (KeyMouseReader.keyState.IsKeyDown(Keys.E))
+                box.RotatePlane(-(float)Math.PI / 64);
 
             base.Update(gameTime);
         }
@@ -87,7 +101,7 @@ namespace _3dgraphics
             _spriteBatch.DrawString(_spriteFont, 
                 $"Pos: x={box.pos.X}, y={box.pos.Y}, z={box.pos.Z}\n" +
                 $"Size: x={box.size.X}, y={box.size.Y}, z={box.size.Z}\n" +
-                $"Rotation: x={box.rotation.X}, y={box.rotation.Y}, z={box.rotation.Z}",
+                $"Rotation: {GetMatrixString(box.rotation)}",
             new Vector2(10, 10), Color.White);
 
             _spriteBatch.End();
