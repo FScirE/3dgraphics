@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace _3dgraphics
@@ -15,7 +10,7 @@ namespace _3dgraphics
         public static void Initialize(Vector3 pos, float fov)
         {
             view = Matrix.CreateLookAt(pos, Vector3.Zero, Vector3.Up);
-            projection = Matrix.CreatePerspectiveFieldOfView(fov, 1, 0.1f, 100);
+            projection = Matrix.CreatePerspectiveFieldOfView(fov, (float)Game1._screenWidth / Game1._screenHeight, 0.1f, 100);
             world = Matrix.Identity;
         }
 

@@ -16,11 +16,13 @@ namespace _3dgraphics
 
         public const int _screenWidth = 800;
         public const int _screenHeight = 800;
+        public const float isoScale = _screenHeight / 36;
 
-        private Line2D[] crosshair;
-        private Line2D line;
+        private static Line2D[] crosshair, axles;
+        private static Line2D line;
 
-        private Box box, defaultBox;
+        private static Box box, defaultBox;
+        private static bool isometric;
 
         public Game1()
         {
@@ -41,6 +43,31 @@ namespace _3dgraphics
                     representation += ", ";
             }
             return representation;
+        }
+
+        private static void SetAxles()
+        {
+            float halfHeight = _screenHeight / 2;
+            float halfWidth = _screenWidth / 2;
+
+            if (isometric)
+            {
+                // X
+                axles[0] = new Line2D(new Vector2(0, halfHeight), new Vector2(_screenWidth, halfHeight), 1, Color.SlateGray);
+                // Y
+                axles[1] = new Line2D(new Vector2(halfWidth, 0), new Vector2(halfWidth, _screenHeight), 1, Color.SlateGray);
+                // Z
+                axles[2] = new Line2D(new Vector2(halfWidth + halfHeight, 0), new Vector2(halfWidth - halfHeight, _screenHeight), 1, Color.SlateGray);
+            }
+            else
+            {
+                // X
+                axles[0] = new Line2D(new Vector2(0, halfHeight), new Vector2(_screenWidth, halfHeight), 1, Color.SlateGray);
+                // Y
+                axles[1] = new Line2D(new Vector2(halfWidth, 0), new Vector2(halfWidth, _screenHeight), 1, Color.SlateGray);
+                // Z
+                axles[2] = new Line2D(new Vector2(halfWidth, halfHeight), new Vector2(halfWidth, halfHeight), 1, Color.SlateGray);
+            }
         }
 
         protected override void Initialize()
@@ -67,6 +94,11 @@ namespace _3dgraphics
 
             line = new Line2D(new Vector2(halfWidth, halfHeight), Vector2.Zero, 1, Color.HotPink);
 
+            isometric = false;
+
+            axles = new Line2D[3];
+            SetAxles();
+
             base.Initialize();
         }
 
@@ -90,6 +122,11 @@ namespace _3dgraphics
 
             if (KeyMouseReader.KeyPressed(Keys.R))
                 box = new Box(defaultBox);
+            if (KeyMouseReader.KeyPressed(Keys.I))
+            {
+                isometric = !isometric;
+                SetAxles();
+            }
 
             if (KeyMouseReader.keyState.IsKeyDown(Keys.D))
                 box.RotateHorizontal((float)Math.PI / 64);
@@ -130,10 +167,18 @@ namespace _3dgraphics
         {
             GraphicsDevice.Clear(Color.DarkSlateGray);
 
+            // GRID
+            _spriteBatch.Begin();
+
+            foreach (var l in axles)
+                l.Draw(_spriteBatch);
+
+            _spriteBatch.End();
+
             // BOX
             _spriteBatch.Begin(SpriteSortMode.BackToFront);
             
-            box.Draw(_spriteBatch, _graphics.GraphicsDevice.Viewport);
+            box.Draw(_spriteBatch, _graphics.GraphicsDevice.Viewport, isometric);
 
             _spriteBatch.End();
 

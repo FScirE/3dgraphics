@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using static System.Windows.Forms.Design.AxImporter;
 
 namespace _3dgraphics
 {
@@ -103,10 +97,10 @@ namespace _3dgraphics
             CreateEdges();
         }
 
-        public void Draw(SpriteBatch sb, Viewport vp)
+        public void Draw(SpriteBatch sb, Viewport vp, bool iso)
         {               
             foreach (var e in edges)
-                e.Draw(sb, vp);
+                e.Draw(sb, vp, iso);
         }
     }
 }
