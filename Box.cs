@@ -7,7 +7,6 @@ namespace _3dgraphics
     {
         public Vector3 pos { get; private set; }
         public Vector3 size { get; private set; }
-
         public Matrix rotation { get; private set; }
 
         private Vector3[] corners;
@@ -72,35 +71,26 @@ namespace _3dgraphics
 
         public void RotateHorizontal(float amt)
         {
-            Matrix rotate = Matrix.CreateRotationY(amt);
-            rotation *= rotate;
-            for (int i = 0; i < corners.Length; i++)
-                corners[i] = Vector3.Transform(corners[i], rotate);
-            CreateEdges();
+            rotation *= Matrix.CreateRotationY(amt);
+            Update(pos, size, rotation);
         }
 
         public void RotateVertical(float amt)
         {
-            Matrix rotate = Matrix.CreateRotationX(amt);
-            rotation *= rotate;
-            for (int i = 0; i < corners.Length; i++)
-                corners[i] = Vector3.Transform(corners[i], rotate);
-            CreateEdges();
+            rotation *= Matrix.CreateRotationX(amt);
+            Update(pos, size, rotation);
         }
 
         public void RotatePlane(float amt)
         {
-            Matrix rotate = Matrix.CreateRotationZ(amt);
-            rotation *= rotate;
-            for (int i = 0; i < corners.Length; i++)
-                corners[i] = Vector3.Transform(corners[i], rotate);
-            CreateEdges();
+            rotation *= Matrix.CreateRotationZ(amt);
+            Update(pos, size, rotation);
         }
 
-        public void Draw(SpriteBatch sb, Viewport vp, bool iso)
+        public void Draw(SpriteBatch sb, Viewport vp, Utility.RenderModes rm)
         {               
             foreach (var e in edges)
-                e.Draw(sb, vp, iso);
+                e.Draw(sb, vp, rm);
         }
     }
 }

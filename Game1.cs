@@ -16,41 +16,35 @@ namespace _3dgraphics
 
         public const int _screenWidth = 800;
         public const int _screenHeight = 800;
-        public const float isoScale = _screenHeight / 36;
+        public const float _perspectiveScale = _screenHeight / 36;
 
         private static Line2D[] crosshair, axles;
         private static Line2D line;
 
         private static Box box, defaultBox;
-        private static bool isometric;
+        private static float rotationSpeed;
+       
+        private static Utility.RenderModes renderMode;
 
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-        }
-
-        private static string GetMatrixString(Matrix matrix)
-        {
-            string representation = "\n";
-            for (int i = 0; i < 16; i++)
-            {
-                representation += matrix[i].ToString();
-                if ((i + 1) % 4 == 0)
-                    representation += "\n";
-                else 
-                    representation += ", ";
-            }
-            return representation;
-        }
+        }             
 
         private static void SetAxles()
         {
             float halfHeight = _screenHeight / 2;
             float halfWidth = _screenWidth / 2;
 
-            if (isometric)
+            if (renderMode == Utility.RenderModes.Perspective)
+            {
+                axles[0] = new Line2D(Vector2.Zero, Vector2.Zero, 0, Color.White);
+                axles[1] = new Line2D(Vector2.Zero, Vector2.Zero, 0, Color.White);
+                axles[2] = new Line2D(Vector2.Zero, Vector2.Zero, 0, Color.White);
+            }
+            else if (renderMode == Utility.RenderModes.Cavalier)
             {
                 // X
                 axles[0] = new Line2D(new Vector2(0, halfHeight), new Vector2(_screenWidth, halfHeight), 1, Color.SlateGray);
@@ -94,10 +88,12 @@ namespace _3dgraphics
 
             line = new Line2D(new Vector2(halfWidth, halfHeight), Vector2.Zero, 1, Color.HotPink);
 
-            isometric = false;
+            renderMode = Utility.RenderModes.Perspective;
 
             axles = new Line2D[3];
             SetAxles();
+
+            rotationSpeed = (float)Math.PI / 64;
 
             base.Initialize();
         }
@@ -120,43 +116,47 @@ namespace _3dgraphics
 
             line.b = KeyMouseReader.mouseState.Position.ToVector2();
 
-            if (KeyMouseReader.KeyPressed(Keys.R))
+            if (KeyMouseReader.KeyPressed(Keys.Enter))
                 box = new Box(defaultBox);
             if (KeyMouseReader.KeyPressed(Keys.I))
             {
-                isometric = !isometric;
+                renderMode = renderMode == (Utility.RenderModes)Utility.RenderModesAmt ? (Utility.RenderModes)1 : ++renderMode;
                 SetAxles();
             }
 
             if (KeyMouseReader.keyState.IsKeyDown(Keys.D))
-                box.RotateHorizontal((float)Math.PI / 64);
+                Utility.CallVoidMethod(box.RotateHorizontal, rotationSpeed);
             if (KeyMouseReader.keyState.IsKeyDown(Keys.A))
-                box.RotateHorizontal(-(float)Math.PI / 64);
+                Utility.CallVoidMethod(box.RotateHorizontal, -rotationSpeed);
             if (KeyMouseReader.keyState.IsKeyDown(Keys.W))
-                box.RotateVertical((float)Math.PI / 64);
+                Utility.CallVoidMethod(box.RotateVertical, rotationSpeed);
             if (KeyMouseReader.keyState.IsKeyDown(Keys.S))
-                box.RotateVertical(-(float)Math.PI / 64);
+                Utility.CallVoidMethod(box.RotateVertical, -rotationSpeed);
             if (KeyMouseReader.keyState.IsKeyDown(Keys.E))
-                box.RotatePlane((float)Math.PI / 64);
+                Utility.CallVoidMethod(box.RotatePlane, rotationSpeed);
             if (KeyMouseReader.keyState.IsKeyDown(Keys.Q))
-                box.RotatePlane(-(float)Math.PI / 64);
+                Utility.CallVoidMethod(box.RotatePlane, -rotationSpeed);
+
+            Vector2 startPos = KeyMouseReader.oldMouseState.Position.ToVector2();
+            Vector2 mouseDelta = (KeyMouseReader.mouseState.Position - KeyMouseReader.oldMouseState.Position).ToVector2();
 
             if (KeyMouseReader.mouseState.LeftButton == ButtonState.Pressed)
             {
-                Vector2 startPos = KeyMouseReader.oldMouseState.Position.ToVector2();
-                Vector2 mouseDelta = (KeyMouseReader.mouseState.Position - KeyMouseReader.oldMouseState.Position).ToVector2();
-
                 float rotH = mouseDelta.X * (float)Math.PI / _screenWidth;
                 float rotV = -mouseDelta.Y * (float)Math.PI / _screenHeight;
 
+                box.RotateHorizontal(rotH);
+                box.RotateVertical(rotV);
+                
+            }
+            if (KeyMouseReader.mouseState.RightButton == ButtonState.Pressed)
+            {
                 Vector2 v1 = startPos - new Vector2(_screenWidth / 2, _screenHeight / 2);
                 Vector2 v2 = v1 + mouseDelta;
                 float dot = v1.X * v2.X + v1.Y * v2.Y;
                 float det = v1.X * v2.Y - v1.Y * v2.X;
                 float rotP = (float)Math.Atan2(det, dot);
 
-                box.RotateHorizontal(rotH);
-                box.RotateVertical(rotV);
                 box.RotatePlane(rotP);
             }
 
@@ -178,7 +178,7 @@ namespace _3dgraphics
             // BOX
             _spriteBatch.Begin(SpriteSortMode.BackToFront);
             
-            box.Draw(_spriteBatch, _graphics.GraphicsDevice.Viewport, isometric);
+            box.Draw(_spriteBatch, _graphics.GraphicsDevice.Viewport, renderMode);
 
             _spriteBatch.End();
 
@@ -188,7 +188,9 @@ namespace _3dgraphics
             _spriteBatch.DrawString(_spriteFont,
                 $"Pos: {box.pos.ToString()}\n" +
                 $"Size: {box.size.ToString()}\n" +
-                $"Rotation: {GetMatrixString(box.rotation)}",
+                $"Rotation: {Utility.GetMatrixString(box.rotation)}\n" +
+                $"\n" +
+                $"Render Mode: {renderMode.ToString()}",
                 new Vector2(10, 10), Color.White
             );
             foreach (var l in crosshair)
