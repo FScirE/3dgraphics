@@ -23,6 +23,7 @@ namespace _3dgraphics
 
         private static Box box, defaultBox;
         private static float rotationSpeed;
+        private static bool globalRotation;
        
         private static Utility.RenderModes renderMode;
 
@@ -75,6 +76,7 @@ namespace _3dgraphics
             defaultBox = new Box(
                 new Vector3(0, 0, 0),
                 new Vector3(10, 10, 10),
+                Matrix.Identity,
                 Matrix.Identity
             );
             box = new Box(defaultBox);
@@ -94,6 +96,7 @@ namespace _3dgraphics
             SetAxles();
 
             rotationSpeed = (float)Math.PI / 64;
+            globalRotation = true;
 
             base.Initialize();
         }
@@ -118,6 +121,8 @@ namespace _3dgraphics
 
             if (KeyMouseReader.KeyPressed(Keys.Enter))
                 box = new Box(defaultBox);
+            if (KeyMouseReader.KeyPressed(Keys.R))
+                globalRotation = !globalRotation;
             if (KeyMouseReader.KeyPressed(Keys.I))
             {
                 renderMode = renderMode == (Utility.RenderModes)Utility.RenderModesAmt ? (Utility.RenderModes)1 : ++renderMode;
@@ -125,29 +130,28 @@ namespace _3dgraphics
             }
 
             if (KeyMouseReader.keyState.IsKeyDown(Keys.D))
-                Utility.CallVoidMethod(box.RotateHorizontal, rotationSpeed);
+                Utility.CallVoidMethod(globalRotation ? box.RotateHorizontal : box.RotateY, rotationSpeed);
             if (KeyMouseReader.keyState.IsKeyDown(Keys.A))
-                Utility.CallVoidMethod(box.RotateHorizontal, -rotationSpeed);
+                Utility.CallVoidMethod(globalRotation ? box.RotateHorizontal : box.RotateY, -rotationSpeed);
             if (KeyMouseReader.keyState.IsKeyDown(Keys.W))
-                Utility.CallVoidMethod(box.RotateVertical, rotationSpeed);
+                Utility.CallVoidMethod(globalRotation ? box.RotateVertical : box.RotateX, rotationSpeed);
             if (KeyMouseReader.keyState.IsKeyDown(Keys.S))
-                Utility.CallVoidMethod(box.RotateVertical, -rotationSpeed);
+                Utility.CallVoidMethod(globalRotation ? box.RotateVertical : box.RotateX, -rotationSpeed);
             if (KeyMouseReader.keyState.IsKeyDown(Keys.E))
-                Utility.CallVoidMethod(box.RotatePlane, rotationSpeed);
+                Utility.CallVoidMethod(globalRotation ? box.RotatePlane : box.RotateZ, rotationSpeed);
             if (KeyMouseReader.keyState.IsKeyDown(Keys.Q))
-                Utility.CallVoidMethod(box.RotatePlane, -rotationSpeed);
+                Utility.CallVoidMethod(globalRotation ? box.RotatePlane : box.RotateZ, -rotationSpeed);
 
             Vector2 startPos = KeyMouseReader.oldMouseState.Position.ToVector2();
             Vector2 mouseDelta = (KeyMouseReader.mouseState.Position - KeyMouseReader.oldMouseState.Position).ToVector2();
 
             if (KeyMouseReader.mouseState.LeftButton == ButtonState.Pressed)
             {
-                float rotH = mouseDelta.X * (float)Math.PI / _screenWidth;
-                float rotV = -mouseDelta.Y * (float)Math.PI / _screenHeight;
+                float rotHY = mouseDelta.X * (float)Math.PI / _screenWidth;
+                float rotVX = -mouseDelta.Y * (float)Math.PI / _screenHeight;
 
-                box.RotateHorizontal(rotH);
-                box.RotateVertical(rotV);
-                
+                Utility.CallVoidMethod(globalRotation ? box.RotateHorizontal : box.RotateY, rotHY);
+                Utility.CallVoidMethod(globalRotation ? box.RotateVertical : box.RotateX, rotVX);               
             }
             if (KeyMouseReader.mouseState.RightButton == ButtonState.Pressed)
             {
@@ -155,9 +159,9 @@ namespace _3dgraphics
                 Vector2 v2 = v1 + mouseDelta;
                 float dot = v1.X * v2.X + v1.Y * v2.Y;
                 float det = v1.X * v2.Y - v1.Y * v2.X;
-                float rotP = (float)Math.Atan2(det, dot);
+                float rotPZ = (float)Math.Atan2(det, dot);
 
-                box.RotatePlane(rotP);
+                Utility.CallVoidMethod(globalRotation ? box.RotatePlane : box.RotateZ, rotPZ);
             }
 
             base.Update(gameTime);
@@ -188,9 +192,11 @@ namespace _3dgraphics
             _spriteBatch.DrawString(_spriteFont,
                 $"Pos: {box.pos.ToString()}\n" +
                 $"Size: {box.size.ToString()}\n" +
-                $"Rotation: {Utility.GetMatrixString(box.rotation)}\n" +
+                $"Rotation (Local): {Utility.GetMatrixString(box.rotationLocal)}\n" +
+                $"Rotation (Global): {Utility.GetMatrixString(box.rotationGlobal)}\n" +
                 $"\n" +
-                $"Render Mode: {renderMode.ToString()}",
+                $"Render Mode: {renderMode.ToString()}\n" +
+                $"Rotation Mode: {(globalRotation ? "Global": "Local")}",
                 new Vector2(10, 10), Color.White
             );
             foreach (var l in crosshair)

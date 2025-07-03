@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Xml.Serialization;
 
 namespace _3dgraphics
 {
@@ -7,23 +8,24 @@ namespace _3dgraphics
     {
         public Vector3 pos { get; private set; }
         public Vector3 size { get; private set; }
-        public Matrix rotation { get; private set; }
+        public Matrix rotationGlobal { get; private set; }
+        public Matrix rotationLocal { get; private set; }
 
         private Vector3[] corners;
         private Line[] edges;
 
-        public Box(Vector3 pos, Vector3 size, Matrix rotation)
+        public Box(Vector3 pos, Vector3 size, Matrix rotationGlobal, Matrix rotationLocal)
         {       
             corners = new Vector3[8];
             edges = new Line[12];
-            Update(pos, size, rotation);
+            Update(pos, size, rotationGlobal, rotationLocal);
         }
 
         public Box(Box box)
         {
             corners = new Vector3[8];
             edges = new Line[12];
-            Update(box.pos, box.size, box.rotation);
+            Update(box.pos, box.size, box.rotationGlobal, box.rotationLocal);
         }
 
         private void CreateEdges()
@@ -45,15 +47,17 @@ namespace _3dgraphics
             edges[11] = new Line(corners[3], corners[7], Color.Red);
         }
 
-        public void Update(Vector3 pos, Vector3 size, Matrix rotation)
+        public void Update(Vector3 pos, Vector3 size, Matrix rotationGlobal, Matrix rotationLocal)
         {
             this.pos = pos;
             this.size = size;
-            this.rotation = rotation;
+            this.rotationGlobal = rotationGlobal;
+            this.rotationLocal = rotationLocal;
 
+            Matrix rotation = this.rotationLocal * this.rotationGlobal;
             Matrix scale = Matrix.CreateScale(this.size.X / 2, this.size.Y / 2, this.size.Z / 2);
             Matrix translate = Matrix.CreateTranslation(this.pos.X, this.pos.Y, this.pos.Z);
-            Matrix transform = this.rotation * scale * translate;
+            Matrix transform = rotation * scale * translate;
 
             // FRONT
             corners[0] = Vector3.Transform(new Vector3(-1, -1, 1), transform);
@@ -71,20 +75,34 @@ namespace _3dgraphics
 
         public void RotateHorizontal(float amt)
         {
-            rotation *= Matrix.CreateRotationY(amt);
-            Update(pos, size, rotation);
+            rotationGlobal *= Matrix.CreateRotationY(amt);
+            Update(pos, size, rotationGlobal, rotationLocal);
         }
-
         public void RotateVertical(float amt)
         {
-            rotation *= Matrix.CreateRotationX(amt);
-            Update(pos, size, rotation);
+            rotationGlobal *= Matrix.CreateRotationX(amt);
+            Update(pos, size, rotationGlobal, rotationLocal);
         }
-
         public void RotatePlane(float amt)
         {
-            rotation *= Matrix.CreateRotationZ(amt);
-            Update(pos, size, rotation);
+            rotationGlobal *= Matrix.CreateRotationZ(amt);
+            Update(pos, size, rotationGlobal, rotationLocal);
+        }
+
+        public void RotateX(float amt)
+        {
+            rotationLocal = Matrix.CreateRotationX(amt) * rotationLocal;
+            Update(pos, size, rotationGlobal, rotationLocal);
+        }
+        public void RotateY(float amt)
+        {
+            rotationLocal = Matrix.CreateRotationY(amt) * rotationLocal;
+            Update(pos, size, rotationGlobal, rotationLocal);
+        }
+        public void RotateZ(float amt)
+        {
+            rotationLocal = Matrix.CreateRotationZ(amt) * rotationLocal;
+            Update(pos, size, rotationGlobal, rotationLocal);
         }
 
         public void Draw(SpriteBatch sb, Viewport vp, Utility.RenderModes rm)
